@@ -5,6 +5,7 @@ Description:
 3. When local server receives one packet from node ,it just echoes the packet back to the node.
 4. When node receives packet from server, it prints the content of the packet.
 5. Mesh_demo provides recommendation for general protocol parser setup.
+6. Mesh_demo provides guide to build mesh packet and response packet according to packet received.
 ------------------------------------------------------------------------------------------------------
 
 
