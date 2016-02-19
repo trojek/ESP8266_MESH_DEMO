@@ -23,6 +23,8 @@ Please follow below steps to run mesh_demo:
 How to set up local server:
 1. Prepare one computer and make sure python script can run on the computer.
 2. Run demo_server.py on the computer
+Note: if gevent is not installed on your computer, please use folloing command to install gevent firstly.
+      sudo apt-get install python-gevent
 ------------------------------------------------------------------------------------------------------
 
 
