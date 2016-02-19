@@ -9,7 +9,7 @@ def echo(socket, address):
             _buf = socket.recv(4096)
             if not _buf:
                 return
-	    _buf = _buf[0:4] + _buf[10:16] + _buf[4:10] + _buf[16:]
+            _buf = _buf[0:4] + _buf[10:16] + _buf[4:10] + _buf[16:]
             socket.sendall(_buf)
     except Exception, e:
         print traceback.format_exc()
@@ -20,4 +20,3 @@ def echo(socket, address):
 if __name__ == '__main__':
     server = StreamServer(('0.0.0.0', 7000), echo)
     server.serve_forever()
-
