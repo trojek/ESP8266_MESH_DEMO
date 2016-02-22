@@ -9,11 +9,15 @@ else:
 class MeshHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
-        req = self.request.recv(1024).strip()
-        if not req:
-            return
-        resp = req[0:4] + req[10:16] + req[4:10] + req[16:]
-        self.request.sendall(resp)
+        try:
+            while True:
+                req = self.request.recv(1024).strip()
+                if not req:
+                    return
+                resp = req[0:4] + req[10:16] + req[4:10] + req[16:]
+                self.request.sendall(resp)
+        except Exception as e:
+            print(e)
 
 if __name__ == "__main__":
     HOST, PORT = "0.0.0.0", 7000
