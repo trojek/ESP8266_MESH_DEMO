@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 
-import sys, traceback, json
-from gevent.server import StreamServer
+import sys
+if sys.version_info[0] < 3:
+    import SocketServer as socketserver
+else:
+    import socketserver
 
-def echo(socket, address):
-    try:
-        while True:
-            _buf = socket.recv(4096)
-            if not _buf:
-                return
-            _buf = _buf[0:4] + _buf[10:16] + _buf[4:10] + _buf[16:]
-            socket.sendall(_buf)
-    except Exception, e:
-        print traceback.format_exc()
-    finally:
-        socket.close()
+class MeshHandler(socketserver.BaseRequestHandler):
 
+    def handle(self):
+        req = self.request.recv(1024).strip()
+        if not req:
+            return
+        resp = req[0:4] + req[10:16] + req[4:10] + req[16:]
+        self.request.sendall(resp)
 
-if __name__ == '__main__':
-    server = StreamServer(('0.0.0.0', 7000), echo)
+if __name__ == "__main__":
+    HOST, PORT = "0.0.0.0", 7000
+    server = socketserver.TCPServer((HOST, PORT), MeshHandler)
+    server.allow_reuse_address = True
     server.serve_forever()
+
