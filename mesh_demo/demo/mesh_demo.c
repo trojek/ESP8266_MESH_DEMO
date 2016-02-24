@@ -48,7 +48,7 @@ void esp_recv_entrance(void *arg, char *pdata, uint16_t len)
     if (!espconn_mesh_get_usr_data(header, &usr_data, &usr_data_len)) 
         return;
 
-    MESH_DEMO_PRINT("user data, len:%d, content:%s\n", &usr_data_len, usr_data);
+    MESH_DEMO_PRINT("user data, len:%d, content:%s\n", usr_data_len, usr_data);
     /* 
      * process packet
      * call packet_parser(...)
