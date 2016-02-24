@@ -1,7 +1,5 @@
 #!/bin/bash
-#export SDK_BASE=/home/esp8266/Share/git_folder/test_git/merge_150704/LIGHT_PWM_PROJECT
-#export SDK_BASE=/mnt/Share/mesh_demo_release/mesh_demo
-#export SDK_BASE=/mnt/Share/mesh_demo_release/mesh_demo
+export SDK_BASE=$(dirname $(pwd))
 
 echo "gen_misc.sh version 20150511"
 echo ""
@@ -149,9 +147,6 @@ echo ""
 echo "start..."
 echo ""
 
-#cd libesphttpd
-#make clean
-#cd ..
 make clean
 
 make COMPILE=gcc BOOT=$boot APP=$app SPI_SPEED=$spi_speed SPI_MODE=$spi_mode SPI_SIZE_MAP=$spi_size_map

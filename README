@@ -14,8 +14,9 @@ Description:
 Please follow below steps to run mesh_demo:
 1. Set up mesh_demo server according to demo_server.py.
 2. After mesh_demo server setup, please update server_ip in user_config.h according to your demo server.
-3. Build run image using gen_misc.sh.
-4. Download run image to device, then start mesh demo.
+3. Config MESH_ROUTER_SSID and MESH_ROUTER_PASSWD according to your router.
+4. Build run image using gen_misc.sh.
+5. Download run image to device, then start mesh demo.
 ------------------------------------------------------------------------------------------------------
 
 
@@ -23,17 +24,14 @@ Please follow below steps to run mesh_demo:
 How to set up local server:
 1. Prepare one computer and make sure python script can run on the computer.
 2. Run demo_server.py on the computer
-Note: if gevent is not installed on your computer, please use folloing command to install gevent firstly.
-      sudo apt-get install python-gevent
 ------------------------------------------------------------------------------------------------------
 
 
 ------------------------------------------------------------------------------------------------------
 How to build run image:
-1. Export SDK_BASE=/directory_of_your_mesh_demo_project in gen_misc.sh.
-2. Obtain IP address of local server.
-3. Change server_ip in user_config.h according to the IP address of local server.
-4. Run ./gen_misc.h
+1. Obtain IP address of local server.
+2. Change server_ip in user_config.h according to the IP address of local server.
+3. Run ./gen_misc.h
    boot version: boot_v1.2+
    bin generate: user1.bin
    spi speed: 40MHz
