@@ -23,5 +23,5 @@ if __name__ == "__main__":
     HOST, PORT = "0.0.0.0", 7000
     server = socketserver.TCPServer((HOST, PORT), MeshHandler)
     server.allow_reuse_address = True
+    print "mesh server works"
     server.serve_forever()
-

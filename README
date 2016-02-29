@@ -12,11 +12,11 @@ Description:
 
 ------------------------------------------------------------------------------------------------------
 Please follow below steps to run mesh_demo:
-1. Set up mesh_demo server according to demo_server.py.
-2. After mesh_demo server setup, please update server_ip in user_config.h according to your demo server.
+1. Setup local server for mesh node using demo_server.py.
+2. After local server works successfully, please update server_ip in user_config.h according to your local server.
 3. Config MESH_ROUTER_SSID and MESH_ROUTER_PASSWD according to your router in user_config.h.
 4. Build run image using gen_misc.sh.
-5. Download run image to device, then start mesh demo.
+5. Download run image to device, then restart mesh node.
 ------------------------------------------------------------------------------------------------------
 
 
