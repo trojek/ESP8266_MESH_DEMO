@@ -5,8 +5,8 @@ Description:
 3. When local server receives one packet from node ,it just echoes the packet back to the node.
 4. When node receives packet from server, it prints the content of the packet.
 5. Mesh_demo provides current lib of mesh with non-os-sdk.
-6. Mesh_demo provides recommendation for general protocol parser setup.
-7. Mesh_demo provides guide to build mesh packet and response packet according to packet received.
+6. Mesh_demo provides recommendation to setup general protocol parser.
+7. Mesh_demo provides demo to build mesh packet and response packet according to packet received.
 ------------------------------------------------------------------------------------------------------
 
 
@@ -54,3 +54,19 @@ upgrade/user1.1024.new1.bin           0x01000
 ---------------------------------------------------------------
 NOTE: Before starting to download, please make sure you have selected the right flash size (8 Mbit).
 
+
+------------------------------------------------------------------------------------------------------
+You can build run image without boot (optional):
+1. Run ./gen_misc.h
+   boot none
+   bin generate: eagle.flash.bin+eagle.irom0text.bin
+   spi speed: 40MHz
+   spi mode: QIO
+   spi size and map: 1024 (512KB + 512KB)
+2. Download image to device:
+---------------------------------------------------------------
+          file                     download_address
+---------------------------------------------------------------
+eagle.flash.bin                       0x00000
+eagle.irom0text.bin                   0x40000
+------------------------------------------------------------------------------------------------------
