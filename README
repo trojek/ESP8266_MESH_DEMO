@@ -2,11 +2,16 @@
 Description:
 1. The mesh_demo is used to connect multiple IOT nodes to local server.
 2. Every node sends one packet to server per 5 seconds after it joins mesh network.
-3. When local server receives one packet from node ,it just echoes the packet back to the node.
-4. When node receives packet from server, it prints the content of the packet.
-5. Mesh_demo provides current lib of mesh with non-os-sdk.
-6. Mesh_demo provides recommendation to setup general protocol parser.
-7. Mesh_demo provides demo to build mesh packet and response packet according to packet received.
+3. Every node gets mac address of all devices working in mesh per 8 seconds after it joins mesh
+   Root device uses espconn_mesh_get_node_info to get mac address list,
+   while non-root devices use topology request with bcast to get mac address of all nodes.
+4. When local server receives one packet from node ,it just echoes the packet back to the node.
+5. When node receives packet from server, it parses packet according to protocol,
+   and forwards packet to specified protocol parser.
+6. Mesh_demo provides current lib of mesh with non-os-sdk.
+7. Mesh_demo provides recommendation to setup general protocol parser. (mesh_parser.c)
+8. Mesh_demo provides demo to build mesh packet and response packet according to packet received.
+9. Mesh_demo provides demo to parse topolgoy packet (mesh_none.c)
 ------------------------------------------------------------------------------------------------------
 
 

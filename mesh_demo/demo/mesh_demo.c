@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2013-2014 Espressif Systems
+ * Copyright 2015-2016 Espressif Systems
  *
  * FileName: mesh_demo.c
  *
@@ -14,6 +14,7 @@
 #include "c_types.h"
 #include "espconn.h"
 #include "user_config.h"
+#include "mesh_parser.h"
 
 #define MESH_DEMO_PRINT  ets_printf
 #define MESH_DEMO_STRLEN ets_strlen
@@ -22,7 +23,7 @@
 #define MESH_DEMO_FREE   os_free
 
 static esp_tcp ser_tcp;
-static struct espconn ser_conn;
+struct espconn ser_conn;
 
 void esp_mesh_demo_test();
 void mesh_enable_cb(int8_t res);
@@ -31,10 +32,7 @@ void esp_recv_entrance(void *, char *, uint16_t);
 
 void esp_recv_entrance(void *arg, char *pdata, uint16_t len)
 {
-    uint8_t *usr_data = NULL;
-    uint16_t usr_data_len = 0;
     uint8_t *src = NULL, *dst = NULL;
-    enum mesh_usr_proto_type proto;
     uint8_t *resp = "{\"rsp_key\":\"rsp_key_value\"}";
     struct mesh_header_format *header = (struct mesh_header_format *)pdata;
 
@@ -43,21 +41,13 @@ void esp_recv_entrance(void *arg, char *pdata, uint16_t len)
     if (!pdata)
         return;
 
-    if (!espconn_mesh_get_usr_data_proto(header, &proto))
-        return;
-    if (!espconn_mesh_get_usr_data(header, &usr_data, &usr_data_len)) 
-        return;
-
-    MESH_DEMO_PRINT("user data, len:%d, content:%s\n", usr_data_len, usr_data);
     /* 
      * process packet
      * call packet_parser(...)
      * general packet_parser demo
      */
 
-#if 0
-     packet_parser[proto]->handler(arg, usr_data, usr_data_len);
-#endif
+     mesh_packet_parser(arg, pdata, len);
 
     /*
      * then build response packet,
@@ -120,6 +110,8 @@ void esp_mesh_demo_con_cb(void *arg)
     os_timer_disarm(&tst_timer);
     os_timer_setfn(&tst_timer, (os_timer_func_t *)esp_mesh_demo_test, NULL);
     os_timer_arm(&tst_timer, 5000, true);
+
+    mesh_topo_test_start();
 }
 
 void mesh_enable_cb(int8_t res)
@@ -184,6 +176,8 @@ void esp_mesh_demo_test()
     char *tst_data = "{\"req_key\":\"req_key_val\"}\r\n";
     // uint8_t tst_data[] = {'a', 'b', 'c', 'd'};}
     // uint8_t tst_data[] = {0x01, 0x02, 0x03, 0x04, 0x00};
+
+    MESH_DEMO_PRINT("free heap:%u\n", system_get_free_heap_size());
 
     if (!wifi_get_macaddr(STATION_IF, src)) {
         MESH_DEMO_PRINT("get sta mac fail\n");
