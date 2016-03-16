@@ -303,13 +303,13 @@ void user_init(void)
 {
     if (!esp_mesh_demo_init())
         return;
-
+    
     user_devicefind_init();
 
     /*
      * enable mesh
      * after enable mesh, you should wait for the mesh_enable_cb to be triggered.
      */
-	espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
+    espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
 }
 

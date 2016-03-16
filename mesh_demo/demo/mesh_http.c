@@ -42,7 +42,7 @@ void mesh_http_proto_parser(void *arg, uint8_t *pdata, uint16_t len)
 
     for (i = 0; i < url_count; i ++) {
         if (g_url_tab[i].url && url_req &&
-            os_strcmp(g_url_tab[i].url, url_req)) {
+            os_strcmp(g_url_tab[i].url, url_req) == 0) {
             /*
             if (g_url_tab[i].url_handler)
                 g_url_tab[i].url_handler(...);
