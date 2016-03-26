@@ -18,12 +18,13 @@ static struct mesh_http_url_table g_url_tab[] = {
     {NULL, NULL, NULL},
 };
 
-void url_test1_handler(void *arg)
+void ICACHE_FLASH_ATTR url_test1_handler(void *arg)
 {
     MESH_PARSER_PRINT("%s\n", __func__);
 }
 
-void mesh_http_proto_parser(void *arg, uint8_t *pdata, uint16_t len)
+void ICACHE_FLASH_ATTR
+mesh_http_proto_parser(void *arg, uint8_t *pdata, uint16_t len)
 {
     uint16_t i = 0;
     uint16_t url_count = 0;

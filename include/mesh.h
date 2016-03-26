@@ -22,7 +22,6 @@
 #define ESP_MESH_OP_MAX_PER_PKT         ((ESP_MESH_PKT_LEN_MAX - ESP_MESH_HLEN) / ESP_MESH_OPTION_MAX_LEN)
 #define ESP_MESH_DEV_MAX_PER_OP         ((ESP_MESH_OPTION_MAX_LEN - ESP_MESH_OPTION_HLEN) / ESP_MESH_ADDR_LEN)
 #define ESP_MESH_DEV_MAX_PER_PKT        (ESP_MESH_OP_MAX_PER_PKT * ESP_MESH_DEV_MAX_PER_OP)
-#define ESP_MESH_OPTION_CR_LEN          (ESP_MESH_OPTION_HLEN)
 #define ESP_MESH_BCAST_ADDR             (mesh_bcast_addr.addr)
 #define ESP_MESH_MCAST_ADDR             (mesh_mcast_addr.addr)
 

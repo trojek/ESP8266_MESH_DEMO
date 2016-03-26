@@ -6,6 +6,7 @@
 #include "mesh_mqtt.h"
 #include "mesh_none.h"
 #include "mesh_bin.h"
+#include "mesh_device.h"
 #include "mesh.h"
 
 #define MESH_PARSER_DEBUG

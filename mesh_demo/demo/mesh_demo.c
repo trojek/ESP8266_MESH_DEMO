@@ -11,9 +11,6 @@
 #include "mem.h"
 #include "mesh.h"
 #include "osapi.h"
-#include "c_types.h"
-#include "espconn.h"
-#include "user_config.h"
 #include "mesh_parser.h"
 
 #define MESH_DEMO_PRINT  ets_printf
@@ -30,7 +27,7 @@ void mesh_enable_cb(int8_t res);
 void esp_mesh_demo_con_cb(void *);
 void esp_recv_entrance(void *, char *, uint16_t);
 
-void esp_recv_entrance(void *arg, char *pdata, uint16_t len)
+void ICACHE_FLASH_ATTR esp_recv_entrance(void *arg, char *pdata, uint16_t len)
 {
     uint8_t *src = NULL, *dst = NULL;
     uint8_t *resp = "{\"rsp_key\":\"rsp_key_value\"}";
@@ -95,7 +92,7 @@ void esp_recv_entrance(void *arg, char *pdata, uint16_t len)
 #endif
 }
 
-void esp_mesh_demo_con_cb(void *arg)
+void ICACHE_FLASH_ATTR esp_mesh_demo_con_cb(void *arg)
 {
     static os_timer_t tst_timer;
     struct espconn *server = (struct espconn *)arg;
@@ -109,12 +106,10 @@ void esp_mesh_demo_con_cb(void *arg)
 
     os_timer_disarm(&tst_timer);
     os_timer_setfn(&tst_timer, (os_timer_func_t *)esp_mesh_demo_test, NULL);
-    os_timer_arm(&tst_timer, 5000, true);
-
-    mesh_topo_test_start();
+    os_timer_arm(&tst_timer, 7000, true);
 }
 
-void mesh_enable_cb(int8_t res)
+void ICACHE_FLASH_ATTR mesh_enable_cb(int8_t res)
 {
 	MESH_DEMO_PRINT("mesh_enable_cb\n");
 
@@ -161,13 +156,23 @@ void mesh_enable_cb(int8_t res)
         espconn_mesh_disable(NULL);
         return;
     }
+
+    mesh_device_list_init();
+    mesh_topo_test_init();
+    mesh_json_mcast_test_init();
+    mesh_json_bcast_test_init();
+    mesh_json_p2p_test_init();
 }
 
-void esp_mesh_demo_test()
+void ICACHE_FLASH_ATTR esp_mesh_demo_test()
 {
     uint8_t src[6];
     uint8_t dst[6];
     struct mesh_header_format *header = NULL;
+
+    /*
+     * this is ucast test case
+     */
 
     /*
      * the mesh data can be any content
@@ -224,7 +229,8 @@ void esp_mesh_demo_test()
     MESH_DEMO_FREE(header);
 }
 
-bool esp_mesh_demo_init()
+
+bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
 {
     struct station_config config;
 

@@ -18,7 +18,8 @@ static struct mesh_general_parser_type g_packet_parser[] = {
     {M_PROTO_BIN,  mesh_bin_proto_parser}
 };
 
-void mesh_packet_parser(void *arg, uint8_t *pdata, uint16_t len)
+void ICACHE_FLASH_ATTR
+mesh_packet_parser(void *arg, uint8_t *pdata, uint16_t len)
 {
     uint16_t i = 0;
     uint8_t *usr_data = NULL;
