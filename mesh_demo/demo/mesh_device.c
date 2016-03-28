@@ -13,8 +13,6 @@
 #define MESH_DEV_MEMCMP os_memcmp
 #define MESH_DEV_FREE   os_free
 
-#define MESH_DEV_IDX_INVALID (-1)
-
 static bool g_mesh_device_init = false;
 static struct mesh_device_list_type g_node_list;
 
@@ -61,19 +59,25 @@ mesh_device_get_root(const struct mesh_device_mac_type **root)
     return true;
 }
 
-void ICACHE_FLASH_ATTR mesh_device_list_init()
+void ICACHE_FLASH_ATTR mesh_device_list_release()
 {
-    if (!g_mesh_device_init) {
-        MESH_DEV_MEMSET(&g_node_list, 0, sizeof(g_node_list));
-        g_mesh_device_init = true;
+    if (!g_mesh_device_init)
         return;
-    }
 
     if (g_node_list.list != NULL) {
         MESH_DEV_FREE(g_node_list.list);
         g_node_list.list = NULL;
     }
     MESH_DEV_MEMSET(&g_node_list, 0, sizeof(g_node_list));
+}
+
+void ICACHE_FLASH_ATTR mesh_device_list_init()
+{
+    if (g_mesh_device_init)
+        return;
+    
+    MESH_DEV_MEMSET(&g_node_list, 0, sizeof(g_node_list));
+    g_mesh_device_init = true;
 }
 
 void ICACHE_FLASH_ATTR
@@ -85,6 +89,7 @@ mesh_device_set_root(struct mesh_device_mac_type *root)
      * the first time to set root
      */
     if (g_node_list.scale == 0) {
+        MESH_DEMO_PRINT("new root:" MACSTR "\n", MAC2STR((uint8_t *)root));
         MESH_DEV_MEMCPY(&g_node_list.root, root, sizeof(*root));
         g_node_list.scale = 1;
         return;
@@ -101,7 +106,9 @@ mesh_device_set_root(struct mesh_device_mac_type *root)
      * switch root device, so the mac address list is stale
      * we need to free the stale the mac list
      */
-    mesh_device_list_init();
+    MESH_DEMO_PRINT("switch root:" MACSTR "to root:" MACSTR "\n",
+            MAC2STR((uint8_t *)&g_node_list.root), MAC2STR((uint8_t *)root));
+    mesh_device_list_release();
     MESH_DEV_MEMCPY(&g_node_list.root, root, sizeof(*root));
     g_node_list.scale = 1;
 }
@@ -114,7 +121,7 @@ mesh_search_device(const struct mesh_device_mac_type *node)
     struct mesh_device_mac_type *list = NULL;
 
     if (g_node_list.scale == 0)
-        return MESH_DEV_IDX_INVALID ;
+        return false;
     if (!MESH_DEV_MEMCMP(&g_node_list.root, node, sizeof(*node)))
         return true;
     if (g_node_list.list == NULL)
@@ -151,8 +158,10 @@ mesh_device_add(struct mesh_device_mac_type *nodes, uint16_t count)
          */
         uint16_t size = g_node_list.size + rest + MESH_DEV_STEP;
         uint8_t *buf = (uint8_t *)MESH_DEV_ZALLOC(size * sizeof(*nodes));
-        if (!buf)
+        if (!buf) {
+            MESH_DEMO_PRINT("mesh add alloc buf fail\n");
             return false;
+        }
         /*
          * move the current list to new buffer
          */
@@ -203,7 +212,7 @@ mesh_device_del(struct mesh_device_mac_type *nodes, uint16_t count)
          * root will be delete, so current mac list is stale
          */
         if (!MESH_DEV_MEMCMP(nodes + idx, &g_node_list.root, sizeof(*nodes))) {
-            mesh_device_list_init();
+            mesh_device_list_release();
             return true;
         }
 
@@ -212,12 +221,12 @@ mesh_device_del(struct mesh_device_mac_type *nodes, uint16_t count)
          */
         for (i = 0; i < sub_count; i ++) {
             if (!MESH_DEV_MEMCMP(nodes + idx, &g_node_list.list[i], sizeof(*nodes))) {
-                if (sub_count - i - 1 == 0)
-                    return true;
-                MESH_DEV_MEMCPY(&g_node_list.list[i], &g_node_list.list[i + 1],
-                        (sub_count - i - 1) * sizeof(*nodes));
+                if (sub_count - i  > 1)
+                    MESH_DEV_MEMCPY(&g_node_list.list[i], &g_node_list.list[i + 1],
+                            (sub_count - i - 1) * sizeof(*nodes));
                 sub_count --;
                 g_node_list.scale --;
+                i --;
                 MESH_DEV_MEMSET(&g_node_list.list[g_node_list.scale], 0, sizeof(*nodes));
                 break;
             }

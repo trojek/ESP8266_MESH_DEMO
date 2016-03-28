@@ -220,9 +220,9 @@ void ICACHE_FLASH_ATTR esp_mesh_demo_test()
         MESH_DEMO_PRINT("mesh sent fail\n");
         MESH_DEMO_FREE(header);
         /*
-         * if fail, we re-enable mesh
+         * if fail, we re-connect mesh
          */
-	    espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
+        espconn_mesh_connect(&ser_conn);
         return;
     }
 
