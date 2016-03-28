@@ -259,12 +259,11 @@ mesh_json_mcast_test()
                         (rest - 1) * sizeof(*root));
             option = (struct mesh_header_option_format *)espconn_mesh_create_option(
                     M_O_MCAST_GRP, rest_dev, sizeof(*root) * rest);
+            MESH_DEMO_FREE(rest_dev);
             if (!option) {
                 MESH_PARSER_PRINT("mcast create the last option fail\n");
-                MESH_DEMO_FREE(rest_dev);
                 goto MCAST_FAIL;
             }
-            MESH_DEMO_FREE(rest_dev);
 
             if (!espconn_mesh_add_option(header, option)) {
                 MESH_PARSER_PRINT("mcast set the last option fail\n");
@@ -275,15 +274,12 @@ mesh_json_mcast_test()
 
     if (!espconn_mesh_set_usr_data(header, buf, os_strlen(buf))) {
         MESH_DEMO_PRINT("mcast set user data fail\n");
-        MESH_DEMO_FREE(header);
-        return;
+        goto MCAST_FAIL;
     }
 
     if (espconn_mesh_sent(&ser_conn, (uint8_t *)header, header->len)) {
         MESH_DEMO_PRINT("mcast mesh sent fail\n");
         espconn_mesh_connect(&ser_conn);
-        MESH_DEMO_FREE(header);
-        return;
     }
 
 MCAST_FAIL:
