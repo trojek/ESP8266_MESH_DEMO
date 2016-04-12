@@ -12,7 +12,6 @@ class MeshHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.buf = bytearray()
         print(self)
-        print(self.buf)
         try:
             while True:
                 header = self.read_full(4)
