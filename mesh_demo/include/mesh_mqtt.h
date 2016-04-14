@@ -6,6 +6,6 @@
 /*
  * this function is used to parse packet formatted with MQTT
  */
-void mesh_mqtt_proto_parser(void *arg, uint8_t *pdata, uint16_t len);
+void mesh_mqtt_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len);
 
 #endif

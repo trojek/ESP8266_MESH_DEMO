@@ -16,7 +16,7 @@
 #define MESH_PARSER_PRINT
 #endif
 
-typedef void (*mesh_proto_parser_handler)(void *arg, uint8_t *pdata, uint16_t len);
+typedef void (*mesh_proto_parser_handler)(const void *mesh_header, uint8_t *pdata, uint16_t len);
 
 struct mesh_general_parser_type {
     uint8_t proto;

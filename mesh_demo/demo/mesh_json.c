@@ -15,7 +15,7 @@
 extern struct espconn ser_conn;
 
 void ICACHE_FLASH_ATTR
-mesh_json_proto_parser(void *arg, uint8_t *pdata, uint16_t len)
+mesh_json_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len)
 {
     MESH_PARSER_PRINT("%s\n", __func__);
     MESH_PARSER_PRINT("len:%u, data:%s\n", len, pdata);

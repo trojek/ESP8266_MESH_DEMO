@@ -41,7 +41,7 @@ mesh_packet_parser(void *arg, uint8_t *pdata, uint16_t len)
         if (g_packet_parser[i].proto == proto) {
             if (g_packet_parser[i].handler == NULL)
                 break;
-            g_packet_parser[i].handler(arg, usr_data, usr_data_len);
+            g_packet_parser[i].handler(header, usr_data, usr_data_len);
             break;
         }
     }

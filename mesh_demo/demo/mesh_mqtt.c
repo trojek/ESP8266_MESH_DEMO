@@ -11,7 +11,7 @@
 #include "mesh_parser.h"
 
 void ICACHE_FLASH_ATTR
-mesh_mqtt_proto_parser(void *arg, uint8_t *pdata, uint16_t len)
+mesh_mqtt_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len)
 {
     MESH_PARSER_PRINT("%s\n", __func__);
 }

@@ -33,7 +33,7 @@ mesh_disp_sub_dev_mac(uint8_t *sub_mac, uint16_t sub_count)
 }
 
 void ICACHE_FLASH_ATTR
-mesh_none_proto_parser(void *arg, uint8_t *pdata, uint16_t len)
+mesh_none_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len)
 {
     uint16_t op_idx = 1;
     uint16_t dev_count = 0;

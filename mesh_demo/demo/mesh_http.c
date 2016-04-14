@@ -24,7 +24,7 @@ void ICACHE_FLASH_ATTR url_test1_handler(void *arg)
 }
 
 void ICACHE_FLASH_ATTR
-mesh_http_proto_parser(void *arg, uint8_t *pdata, uint16_t len)
+mesh_http_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len)
 {
     uint16_t i = 0;
     uint16_t url_count = 0;

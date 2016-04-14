@@ -6,6 +6,6 @@
 /*
  * this function is used to parse binary stream
  */
-void mesh_bin_proto_parser(void *arg, uint8_t *pdata, uint16_t len);
+void mesh_bin_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len);
 
 #endif

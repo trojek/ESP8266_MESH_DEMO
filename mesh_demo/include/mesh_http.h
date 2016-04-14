@@ -15,6 +15,6 @@ struct mesh_http_url_table {
  * this function is used to parse packet formatted with HTTP
  * you can merge esphttpd into the function.
  */
-void mesh_http_proto_parser(void *arg, uint8_t *pdata, uint16_t len);
+void mesh_http_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len);
 
 #endif
