@@ -22,10 +22,14 @@
 static esp_tcp ser_tcp;
 struct espconn ser_conn;
 
+void user_init(void);
 void esp_mesh_demo_test();
 void mesh_enable_cb(int8_t res);
 void esp_mesh_demo_con_cb(void *);
 void esp_recv_entrance(void *, char *, uint16_t);
+
+void user_rf_pre_init(void){}
+void user_pre_init(void){}
 
 void ICACHE_FLASH_ATTR esp_recv_entrance(void *arg, char *pdata, uint16_t len)
 {
@@ -296,8 +300,7 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
     return true;
 }
 
-void user_rf_pre_init(void){}
-void user_pre_init(void){}
+
 
 /******************************************************************************
  * FunctionName : user_init
