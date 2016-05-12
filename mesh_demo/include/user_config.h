@@ -11,6 +11,7 @@
 static const uint16_t server_port = 7000;                  /*PORT USED BY USER IOT SERVER FOR MESH SERVICE*/  
 static const uint8_t server_ip[4] = {192, 168, 11, 116};   /*USER IOT SERVER IP ADDRESS*/
 static const uint8_t MESH_GROUP_ID[6] = {0x18,0xfe,0x34,0x00,0x00,0x50};  /*MESH_GROUP_ID & MESH_SSID_PREFIX REPRESENTS ONE MESH NETWORK*/
+static const uint8_t MESH_ROUTER_BSSID[6] = {0xF0, 0xB4, 0x29, 0x2C, 0x7C, 0x72}; /*MAC OF ROUTER*/
 
 /*
  * please change MESH_ROUTER_SSID and MESH_ROUTER_PASSWD according to your router

@@ -12,7 +12,7 @@
 #include "osapi.h"
 #include "mesh_parser.h"
 
-extern struct espconn ser_conn;
+extern struct espconn g_ser_conn;
 
 void ICACHE_FLASH_ATTR
 mesh_json_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len)
@@ -66,9 +66,9 @@ mesh_json_bcast_test()
         return;
     }
 
-    if (espconn_mesh_sent(&ser_conn, (uint8_t *)header, header->len)) {
-        MESH_DEMO_PRINT("bcast mesh sent fail\n");
-        espconn_mesh_connect(&ser_conn);
+    if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
+        MESH_DEMO_PRINT("bcast mesh is busy\n");
+        espconn_mesh_connect(&g_ser_conn);
         MESH_DEMO_FREE(header);
         return;
     }
@@ -142,9 +142,9 @@ mesh_json_p2p_test()
         return;
     }
 
-    if (espconn_mesh_sent(&ser_conn, (uint8_t *)header, header->len)) {
-        MESH_DEMO_PRINT("p2p mesh sent fail\n");
-        espconn_mesh_connect(&ser_conn);
+    if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
+        MESH_DEMO_PRINT("p2p mesh is busy\n");
+        espconn_mesh_connect(&g_ser_conn);
         MESH_DEMO_FREE(header);
         return;
     }
@@ -277,9 +277,9 @@ mesh_json_mcast_test()
         goto MCAST_FAIL;
     }
 
-    if (espconn_mesh_sent(&ser_conn, (uint8_t *)header, header->len)) {
-        MESH_DEMO_PRINT("mcast mesh sent fail\n");
-        espconn_mesh_connect(&ser_conn);
+    if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
+        MESH_DEMO_PRINT("mcast mesh is busy\n");
+        espconn_mesh_connect(&g_ser_conn);
     }
 
 MCAST_FAIL:

@@ -18,9 +18,11 @@
 #define MESH_DEMO_MEMCPY ets_memcpy
 #define MESH_DEMO_MEMSET ets_memset
 #define MESH_DEMO_FREE   os_free
+#define MESH_DEMO_ZALLOC os_zalloc
+#define MESH_DEMO_MALLOC os_malloc
 
 static esp_tcp ser_tcp;
-struct espconn ser_conn;
+struct espconn g_ser_conn;
 
 void user_init(void);
 void esp_mesh_demo_test();
@@ -48,7 +50,7 @@ void ICACHE_FLASH_ATTR esp_recv_entrance(void *arg, char *pdata, uint16_t len)
      * general packet_parser demo
      */
 
-     mesh_packet_parser(arg, pdata, len);
+    mesh_packet_parser(arg, pdata, len);
 
     /*
      * then build response packet,
@@ -86,8 +88,8 @@ void ICACHE_FLASH_ATTR esp_recv_entrance(void *arg, char *pdata, uint16_t len)
         return;
     }
 
-    if (espconn_mesh_sent(&ser_conn, (uint8_t *)header, header->len)) {
-        MESH_DEMO_PRINT("mesh sent fail\n");
+    if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
+        MESH_DEMO_PRINT("mesh is busy\n");
         MESH_DEMO_FREE(header);
         return;
     }
@@ -103,7 +105,7 @@ void ICACHE_FLASH_ATTR esp_mesh_demo_con_cb(void *arg)
 
     MESH_DEMO_PRINT("esp_mesh_demo_con_cb\n");
 
-    if (server != &ser_conn) {
+    if (server != &g_ser_conn) {
         MESH_DEMO_PRINT("con_cb, para err\n");
         return;
     }
@@ -118,7 +120,8 @@ void ICACHE_FLASH_ATTR mesh_enable_cb(int8_t res)
 	MESH_DEMO_PRINT("mesh_enable_cb\n");
 
     if (res == MESH_OP_FAILURE) {
-	    MESH_DEMO_PRINT("enable mesh fail\n");
+        MESH_DEMO_PRINT("enable mesh fail, re-enable\n");
+        espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
         return;
     }
 
@@ -129,21 +132,21 @@ void ICACHE_FLASH_ATTR mesh_enable_cb(int8_t res)
      * if you want to sent packet to server/mobile, please build normal packet (uincast packet)
      * if you want to sent bcast/mcast packet, please build bcast/mcast packet
      */
-    MESH_DEMO_MEMSET(&ser_conn, 0 ,sizeof(ser_conn));
+    MESH_DEMO_MEMSET(&g_ser_conn, 0 ,sizeof(g_ser_conn));
     MESH_DEMO_MEMSET(&ser_tcp, 0, sizeof(ser_tcp));
 
     MESH_DEMO_MEMCPY(ser_tcp.remote_ip, server_ip, sizeof(server_ip));
     ser_tcp.remote_port = server_port;
     ser_tcp.local_port = espconn_port();
-    ser_conn.proto.tcp = &ser_tcp;
+    g_ser_conn.proto.tcp = &ser_tcp;
 
-    if (espconn_regist_connectcb(&ser_conn, esp_mesh_demo_con_cb)) {
+    if (espconn_regist_connectcb(&g_ser_conn, esp_mesh_demo_con_cb)) {
         MESH_DEMO_PRINT("regist con_cb err\n");
         espconn_mesh_disable(NULL);
         return;
     }
 
-    if (espconn_regist_recvcb(&ser_conn, esp_recv_entrance)) {
+    if (espconn_regist_recvcb(&g_ser_conn, esp_recv_entrance)) {
         MESH_DEMO_PRINT("regist recv_cb err\n");
         espconn_mesh_disable(NULL);
         return;
@@ -155,7 +158,7 @@ void ICACHE_FLASH_ATTR mesh_enable_cb(int8_t res)
      * if you donn't need the above cb, you donn't need to register them.
      */
 
-    if (espconn_mesh_connect(&ser_conn)) {
+    if (espconn_mesh_connect(&g_ser_conn)) {
         MESH_DEMO_PRINT("connect err\n");
         espconn_mesh_disable(NULL);
         return;
@@ -220,13 +223,13 @@ void ICACHE_FLASH_ATTR esp_mesh_demo_test()
         return;
     }
 
-    if (espconn_mesh_sent(&ser_conn, (uint8_t *)header, header->len)) {
-        MESH_DEMO_PRINT("mesh sent fail\n");
+    if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
+        MESH_DEMO_PRINT("mesh is busy\n");
         MESH_DEMO_FREE(header);
         /*
          * if fail, we re-connect mesh
          */
-        espconn_mesh_connect(&ser_conn);
+        espconn_mesh_connect(&g_ser_conn);
         return;
     }
 
@@ -289,6 +292,15 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
     MESH_DEMO_MEMCPY(config.ssid, MESH_ROUTER_SSID, MESH_DEMO_STRLEN(MESH_ROUTER_SSID));
     MESH_DEMO_MEMCPY(config.password, MESH_ROUTER_PASSWD, MESH_DEMO_STRLEN(MESH_ROUTER_PASSWD));
     /*
+     * if you use router with hide ssid, you MUST set bssid in config,
+     * otherwise, node will fail to connect router.
+     *
+     * if you use normal router, please pay no attention to the bssid,
+     * and you don't need to modify the bssid, mesh will ignore the bssid.
+     */
+    config.bssid_set = 1;
+    MESH_DEMO_MEMCPY(config.bssid, MESH_ROUTER_BSSID, sizeof(config.bssid));
+    /*
      * you can use esp-touch(smart configure) to sent information about router AP to mesh node
      * if you donn't use esp-touch, you should use espconn_mesh_set_router to set router for mesh node
      */
@@ -299,8 +311,6 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
 
     return true;
 }
-
-
 
 /******************************************************************************
  * FunctionName : user_init

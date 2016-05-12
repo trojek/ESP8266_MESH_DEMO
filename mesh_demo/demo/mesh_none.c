@@ -13,7 +13,7 @@
 #include "osapi.h"
 #include "mesh_parser.h"
 
-extern struct espconn ser_conn;
+extern struct espconn g_ser_conn;
 
 void ICACHE_FLASH_ATTR
 mesh_disp_sub_dev_mac(uint8_t *sub_mac, uint16_t sub_count)
@@ -128,9 +128,9 @@ void ICACHE_FLASH_ATTR mesh_topo_test()
         goto TOPO_FAIL;
     }
 
-    if (espconn_mesh_sent(&ser_conn, (uint8_t *)header, header->len)) {
-        MESH_PARSER_PRINT("mesh sent fail\n");
-        espconn_mesh_connect(&ser_conn);
+    if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
+        MESH_PARSER_PRINT("mesh is busy\n");
+        espconn_mesh_connect(&g_ser_conn);
     }
 TOPO_FAIL:
     option ? MESH_DEMO_FREE(option) : 0;
