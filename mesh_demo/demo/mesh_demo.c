@@ -125,6 +125,11 @@ void ICACHE_FLASH_ATTR mesh_enable_cb(int8_t res)
         return;
     }
 
+    if (espconn_mesh_get_usr_context() &&
+        espconn_mesh_is_root() &&
+        res == MESH_LOCAL_SUC)
+        goto TEST_SCENARIO;
+
     /*
      * try to estable user virtual connect
      * user can to use the virtual connect to sent packet to any node, server or mobile.
@@ -160,10 +165,14 @@ void ICACHE_FLASH_ATTR mesh_enable_cb(int8_t res)
 
     if (espconn_mesh_connect(&g_ser_conn)) {
         MESH_DEMO_PRINT("connect err\n");
-        espconn_mesh_disable(NULL);
+        if (espconn_mesh_is_root())
+            espconn_mesh_enable(mesh_enable_cb, MESH_LOCAL);
+        else
+            espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
         return;
     }
 
+TEST_SCENARIO:
     mesh_device_list_init();
     mesh_topo_test_init();
     mesh_json_mcast_test_init();
