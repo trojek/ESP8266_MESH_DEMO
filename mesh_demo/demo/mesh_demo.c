@@ -329,6 +329,12 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
 *******************************************************************************/
 void user_init(void)
 {
+    /*
+     * set uart baut ratio
+     */
+    uart_div_modify(0, UART_CLK_FREQ / UART_BAUT_RATIO);
+    uart_div_modify(1, UART_CLK_FREQ / UART_BAUT_RATIO);
+
     if (!esp_mesh_demo_init())
         return;
     
