@@ -12,6 +12,7 @@
 #include "mesh.h"
 #include "osapi.h"
 #include "mesh_parser.h"
+#include "esp_touch.h"
 
 #define MESH_DEMO_PRINT  ets_printf
 #define MESH_DEMO_STRLEN ets_strlen
@@ -248,8 +249,6 @@ void ICACHE_FLASH_ATTR esp_mesh_demo_test()
 
 bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
 {
-    struct station_config config;
-
     // print version of mesh
     espconn_mesh_print_ver();
 
@@ -294,31 +293,76 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
         return false;
     }
 
-    /*
-     * please change MESH_ROUTER_SSID and MESH_ROUTER_PASSWD according to your router
-     */
+    return true;
+}
+
+/******************************************************************************
+ * FunctionName : router_init
+ * Description  : Initialize router related settings & Connecting router
+ * Parameters   : none
+ * Returns      : none
+*******************************************************************************/
+static bool ICACHE_FLASH_ATTR router_init()
+{
+    struct station_config config;
     MESH_DEMO_MEMSET(&config, 0, sizeof(config));
-    MESH_DEMO_MEMCPY(config.ssid, MESH_ROUTER_SSID, MESH_DEMO_STRLEN(MESH_ROUTER_SSID));
-    MESH_DEMO_MEMCPY(config.password, MESH_ROUTER_PASSWD, MESH_DEMO_STRLEN(MESH_ROUTER_PASSWD));
+    espconn_mesh_get_router(&config);
+    if (config.ssid[0] == 0xff ||
+        config.ssid[0] == 0x00) {
+        /*
+         * please change MESH_ROUTER_SSID and MESH_ROUTER_PASSWD according to your router
+         */
+        MESH_DEMO_MEMSET(&config, 0, sizeof(config));
+        MESH_DEMO_MEMCPY(config.ssid, MESH_ROUTER_SSID, MESH_DEMO_STRLEN(MESH_ROUTER_SSID));
+        MESH_DEMO_MEMCPY(config.password, MESH_ROUTER_PASSWD, MESH_DEMO_STRLEN(MESH_ROUTER_PASSWD));
+        /*
+         * if you use router with hide ssid, you MUST set bssid in config,
+         * otherwise, node will fail to connect router.
+         *
+         * if you use normal router, please pay no attention to the bssid,
+         * and you don't need tomodify the bssid, mesh will ignore the bssid.
+         */
+        config.bssid_set = 1;
+        MESH_DEMO_MEMCPY(config.bssid, MESH_ROUTER_BSSID, sizeof(config.bssid));
+    }
+
     /*
-     * if you use router with hide ssid, you MUST set bssid in config,
-     * otherwise, node will fail to connect router.
-     *
-     * if you use normal router, please pay no attention to the bssid,
-     * and you don't need to modify the bssid, mesh will ignore the bssid.
-     */
-    config.bssid_set = 1;
-    MESH_DEMO_MEMCPY(config.bssid, MESH_ROUTER_BSSID, sizeof(config.bssid));
-    /*
-     * you can use esp-touch(smart configure) to sent information about router AP to mesh node
-     * if you donn't use esp-touch, you should use espconn_mesh_set_router to set router for mesh node
+     * use espconn_mesh_set_router to set router for mesh node
      */
     if (!espconn_mesh_set_router(&config)) {
         MESH_DEMO_PRINT("set_router fail\n");
         return false;
     }
 
+    /*
+     * use esp-touch(smart configure) to sent information about router AP to mesh node
+     */
+    esptouch_init();
+
+    MESH_DEMO_PRINT("flush ssid:%s pwd:%s\n", config.ssid, config.password);
+
     return true;
+}
+
+/******************************************************************************
+ * FunctionName : wait_esptouch_over
+ * Description  : wait for esptouch to run over and then enable mesh
+ * Parameters   :
+ * Returns      : none
+*******************************************************************************/
+static void ICACHE_FLASH_ATTR wait_esptouch_over(os_timer_t *timer)
+{
+    if (esptouch_is_running()) return;
+
+    if (!timer) return;
+    os_timer_disarm(timer);
+    os_free(timer);
+
+    /*
+     * enable mesh
+     * after enable mesh, you should wait for the mesh_enable_cb to be triggered.
+     */
+    espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
 }
 
 /******************************************************************************
@@ -335,15 +379,23 @@ void user_init(void)
     uart_div_modify(0, UART_CLK_FREQ / UART_BAUT_RATIO);
     uart_div_modify(1, UART_CLK_FREQ / UART_BAUT_RATIO);
 
+    if (!router_init()) {
+        return;
+    }
+
+
     if (!esp_mesh_demo_init())
         return;
     
     user_devicefind_init();
 
     /*
-     * enable mesh
-     * after enable mesh, you should wait for the mesh_enable_cb to be triggered.
+     * Because at the same time running smartconfig, espconn_mesh_enable will be in conflict,
+     * So wait for esptouch to run over and then execute espconn_mesh_enable
      */
-    espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
+    os_timer_t *wait_timer = (os_timer_t *)os_zalloc(sizeof(os_timer_t));
+    if (NULL == wait_timer) return;
+    os_timer_disarm(wait_timer);
+    os_timer_setfn(wait_timer, (os_timer_func_t *)wait_esptouch_over, wait_timer);
+    os_timer_arm(wait_timer, 1000, true);
 }
-

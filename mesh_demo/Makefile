@@ -76,6 +76,7 @@ LINKFLAGS_eagle.app.v6 = \
 	-lmain	\
 	-lwps \
 	-lmesh \
+	-lsmartconfig \
 	$(DEP_LIBS_eagle.app.v6)					\
 	-Wl,--end-group
 
