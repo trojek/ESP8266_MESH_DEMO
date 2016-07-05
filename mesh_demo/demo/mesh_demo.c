@@ -246,6 +246,12 @@ void ICACHE_FLASH_ATTR esp_mesh_demo_test()
     MESH_DEMO_FREE(header);
 }
 
+void ICACHE_FLASH_ATTR esp_mesh_new_child_notify(void *mac)
+{
+    if (!mac)
+        return;
+    MESH_DEMO_PRINT("new child node:" MACSTR "\n", MAC2STR(((uint8_t *)mac)));
+}
 
 bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
 {
@@ -288,10 +294,18 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
         return false;
     }
 
+    /*
+     * set cloud server ip and port for mesh node
+     */
     if (!espconn_mesh_server_init((struct ip_addr *)server_ip, server_port)) {
         MESH_DEMO_PRINT("server_init fail\n");
         return false;
     }
+
+    /*
+     * when new child joins current AP, system will call the callback
+     */
+    espconn_mesh_regist_usr_cb(esp_mesh_new_child_notify);
 
     return true;
 }
@@ -390,7 +404,7 @@ void user_init(void)
     user_devicefind_init();
 
     /*
-     * Because at the same time running smartconfig, espconn_mesh_enable will be in conflict,
+     * while system runs smartconfig (STA mode), mesh (STA + SoftAp mode) must not been enabled,
      * So wait for esptouch to run over and then execute espconn_mesh_enable
      */
     os_timer_t *wait_timer = (os_timer_t *)os_zalloc(sizeof(os_timer_t));

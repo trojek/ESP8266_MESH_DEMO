@@ -31,9 +31,7 @@ esptouch_success_cb(void* data)
 {
     wifi_set_opmode(STATIONAP_MODE);
     os_timer_disarm(&esptouch_tout_t);
-    MESH_DEMO_PRINT("ESP-TOUCH SUCCESS \r\n");
-    MESH_DEMO_PRINT("ENABLE LIGHT ACTION(ESP-NOW)");
-    MESH_DEMO_PRINT("debug: channel:%d\r\n", wifi_get_channel());
+    MESH_DEMO_PRINT("ESP-TOUCH SUCCESS\r\n");
     MESH_DEMO_PRINT("CONNECTED TO AP...ENABLE MESH AND RUN PLATFORM CODE ...WAIT...\r\n");
     esptouch_running = false;
 }
@@ -47,10 +45,9 @@ esptouch_fail_cb(void* data)
 {
     wifi_station_disconnect();
     smartconfig_stop();
-    MESH_DEMO_PRINT("ESP-TOUCH FAIL \r\n");
+    MESH_DEMO_PRINT("ESP-TOUCH TIMEOUT\r\n");
     os_timer_disarm(&esptouch_tout_t);
 
-    MESH_DEMO_PRINT("debug: channel:%d\r\n", wifi_get_channel());
     esptouch_running = false;
 }
 
@@ -92,8 +89,6 @@ esptouch_proc_cb(sc_status status, void *pdata)
         break;
     case SC_STATUS_LINK:
         MESH_DEMO_PRINT("SC_STATUS_LINK\n");
-        MESH_DEMO_PRINT("MESH STATUS: %d\r\n", espconn_mesh_get_status());
-        MESH_DEMO_PRINT("OPMODE : %d \r\n", wifi_get_opmode());
         struct station_config *sta_conf = pdata;
         wifi_station_disconnect();
         espconn_mesh_set_router(sta_conf);
@@ -113,7 +108,6 @@ esptouch_proc_cb(sc_status status, void *pdata)
             MESH_DEMO_PRINT("Phone ip: %d.%d.%d.%d\n", phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
         }
         smartconfig_stop();
-        MESH_DEMO_PRINT("UPDATE PASSWORD HERE\r\n");
         if (esptouch_proc.esptouch_suc_cb) {
             esptouch_proc.esptouch_suc_cb(NULL);//run finish cb
         }
@@ -140,13 +134,11 @@ esptouch_init()
     MESH_DEMO_PRINT("ESP-TOUCH SET STATION MODE ...\r\n");
     wifi_set_opmode(STATION_MODE);
 
-    MESH_DEMO_PRINT("ESP-TOUCH timeout call esptouch_fail_cb ...\r\n");
     if (esptouch_proc.esptouch_fail_cb) {
         os_timer_disarm(&esptouch_tout_t);
         os_timer_setfn(&esptouch_tout_t, esptouch_proc.esptouch_fail_cb, NULL);
         os_timer_arm(&esptouch_tout_t, ESP_TOUCH_TIME_ENTER, 0);
     }
 
-    MESH_DEMO_PRINT("SMARTCONFIG START");
     smartconfig_start(esptouch_proc_cb);
 }
