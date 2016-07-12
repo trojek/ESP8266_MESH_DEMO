@@ -334,7 +334,7 @@ static bool ICACHE_FLASH_ATTR router_init()
          * otherwise, node will fail to connect router.
          *
          * if you use normal router, please pay no attention to the bssid,
-         * and you don't need tomodify the bssid, mesh will ignore the bssid.
+         * and you don't need to modify the bssid, mesh will ignore the bssid.
          */
         config.bssid_set = 1;
         MESH_DEMO_MEMCPY(config.bssid, MESH_ROUTER_BSSID, sizeof(config.bssid));
