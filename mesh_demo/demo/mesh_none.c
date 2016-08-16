@@ -129,7 +129,7 @@ void ICACHE_FLASH_ATTR mesh_topo_test()
     }
 
     if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
-        MESH_PARSER_PRINT("mesh is busy\n");
+        MESH_PARSER_PRINT("topo mesh is busy\n");
         espconn_mesh_connect(&g_ser_conn);
     }
 TOPO_FAIL:
