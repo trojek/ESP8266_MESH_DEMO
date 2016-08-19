@@ -36,6 +36,7 @@ mesh_device_get_mac_list(const struct mesh_device_mac_type **list,
 
     *list = g_node_list.list;
     *count = g_node_list.scale - 1;
+    return true;
 }
 
 bool ICACHE_FLASH_ATTR
@@ -143,7 +144,7 @@ mesh_device_add(struct mesh_device_mac_type *nodes, uint16_t count)
 {
 #define MESH_DEV_STEP (10)
     uint16_t idx = 0;
-    uint16_t rest = g_node_list.size + 1 - g_node_list.scale;
+    uint16_t rest = g_node_list.size - g_node_list.scale;
 
     if (!g_mesh_device_init)
         mesh_device_list_init();
@@ -156,8 +157,15 @@ mesh_device_add(struct mesh_device_mac_type *nodes, uint16_t count)
          * current list is limited
          * we need to re-allocate buffer for mac list
          */
-        uint16_t size = g_node_list.size + rest + MESH_DEV_STEP;
-        uint8_t *buf = (uint8_t *)MESH_DEV_ZALLOC(size * sizeof(*nodes));
+        uint16_t rest_count = rest + MESH_DEV_STEP;
+        uint8_t *buf = NULL;
+        uint16_t size = 0;
+
+        while(rest_count < count)
+            rest_count += MESH_DEV_STEP;
+        size = rest_count - rest + MESH_DEV_STEP;
+
+        buf = (uint8_t *)MESH_DEV_ZALLOC(size * sizeof(*nodes));
         if (!buf) {
             MESH_DEMO_PRINT("mesh add alloc buf fail\n");
             return false;
