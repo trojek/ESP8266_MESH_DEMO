@@ -377,6 +377,10 @@ static void ICACHE_FLASH_ATTR wait_esptouch_over(os_timer_t *timer)
      * after enable mesh, you should wait for the mesh_enable_cb to be triggered.
      */
     espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
+    /*
+     * if you want to setup SoftAP mesh, please set mesh type "MESH_SOFTAP"
+     * espconn_mesh_enable(mesh_enable_cb, MESH_SOFTAP);
+     */
 }
 
 /******************************************************************************
