@@ -6,9 +6,9 @@
 typedef void (*esptouch_StartAction)(void *para);
 typedef void (*esptouch_FailCallback)(void *para);
 typedef void (*esptouch_SuccessCallback)(void *para);
-#define ESPTOUCH_CONNECT_TIMEOUT_MS  (60000)   /*Time limit for connecting WiFi after ESP-TOUCH figured out the SSID&PWD*/
-#define ESP_TOUCH_TIME_ENTER         (20000)   /*Time limit for ESP-TOUCH to receive config packets*/
-#define ESP_TOUCH_TIMEOUT_MS         (120000)  /*Total time limit for ESP-TOUCH*/
+#define ESPTOUCH_CONNECT_TIMEOUT_MS  (20000)   /*Time limit for connecting WiFi after ESP-TOUCH figured out the SSID&PWD*/
+#define ESP_TOUCH_TIME_ENTER         (2000)    /*Time limit for ESP-TOUCH to receive config packets*/
+#define ESP_TOUCH_TIMEOUT_MS         (40000)   /*Total time limit for ESP-TOUCH*/
 #define ESP_TOUCH_TIME_LIMIT         (2)       /*Get into ESPTOUCH MODE only twice at most, then scan mesh if not connected*/
 
 typedef struct  {

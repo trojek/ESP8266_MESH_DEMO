@@ -31,14 +31,16 @@ typedef void (* espconn_mesh_usr_callback)(void *arg);
 
 enum mesh_op_result {
     MESH_ONLINE_SUC = 0,
-    MESH_LOCAL_SUC = 1,
-    MESH_DISABLE_SUC = 2,
+    MESH_LOCAL_SUC,
+    MESH_DISABLE_SUC,
+    MESH_SOFTAP_SUC,
     MESH_OP_FAILURE = -1
 };
 enum mesh_type {
     MESH_CLOSE = 0,
     MESH_LOCAL,
     MESH_ONLINE,
+    MESH_SOFTAP,
     MESH_NONE = 0xFF
 };
 
@@ -47,7 +49,9 @@ enum mesh_status {
     MESH_WIFI_CONN,
     MESH_NET_CONN,
     MESH_LOCAL_AVAIL,
-    MESH_ONLINE_AVAIL
+    MESH_ONLINE_AVAIL,
+    MESH_SOFTAP_AVAIL,
+    MESH_SOFTAP_SETUP
 };
 
 enum mesh_node_type {
