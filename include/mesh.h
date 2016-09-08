@@ -206,6 +206,7 @@ bool espconn_mesh_get_usr_data_proto(struct mesh_header_format *head,
 bool espconn_mesh_set_usr_data_proto(struct mesh_header_format *head,
                                      enum mesh_usr_proto_type proto);
 bool espconn_mesh_is_root();
+bool espconn_mesh_is_root_candidate();
 bool espconn_mesh_local_addr(struct ip_addr *ip);
 bool espconn_mesh_get_node_info(enum mesh_node_type type,
                                 uint8_t **info, uint16_t *count);

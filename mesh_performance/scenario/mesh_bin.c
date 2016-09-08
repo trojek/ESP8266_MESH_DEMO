@@ -125,6 +125,7 @@ void ICACHE_FLASH_ATTR mesh_stat_disp()
 {
     static uint32_t ttime = 1;
     static uint8_t repeat = 0;
+    static uint32_t pps = 0;
     uint16_t pkt_len = g_pkt_len + ESP_MESH_HLEN;
 
     if (!g_mesh_stat_init)
@@ -152,7 +153,17 @@ void ICACHE_FLASH_ATTR mesh_stat_disp()
     if (g_stat_info.ttime == 0)
         return;
 
-    mesh_stat_start(&g_pkt_len);
+    /*
+     * the test case stop,
+     * we restart it
+     */
+    if (pps == g_stat_info.pps) {
+        g_stat_info.drop += g_pkt_tx_idx - g_pkt_rx_idx;
+        g_pkt_rx_idx = g_pkt_tx_idx;
+        mesh_stat_start(&g_pkt_len);
+    }
+
+    pps = g_stat_info.pps;
 
     ttime = g_stat_info.ttime / 1000;
 
@@ -183,7 +194,6 @@ void ICACHE_FLASH_ATTR mesh_stat_start(void *len)
     uint8_t *dst = NULL;
     uint8_t *data = NULL;
     uint16_t pkt_len = 0;
-    bool set_timer = false;
     struct mesh_stat_info_type *stat = NULL;
     struct mesh_header_format *header = NULL;
     uint32_t time = 5000;
@@ -200,19 +210,9 @@ void ICACHE_FLASH_ATTR mesh_stat_start(void *len)
         return;
     }
 
-    /*
-     * we just hold two packets in tx list
-     * to prevent discard packet when forward packet.
-     */
-    if (g_pkt_tx_idx > g_pkt_rx_idx + 1 && g_dummy_count < 4) {
-        set_timer = true;
-        goto FREE_PKT;
-    }
-
     status = espconn_mesh_get_status();
 
     if (status != MESH_ONLINE_AVAIL && status != MESH_LOCAL_AVAIL) {
-        set_timer = true;
         MESH_DEMO_PRINT("not ready for test\n");
         goto FREE_PKT;
     }
@@ -222,15 +222,16 @@ void ICACHE_FLASH_ATTR mesh_stat_start(void *len)
         return;
     }
 
+    if (g_pkt_tx_idx > g_pkt_rx_idx + 1)
+        goto FREE_PKT;
+
     if (!wifi_get_macaddr(STATION_IF, src)) {
         MESH_DEMO_PRINT("get sta mac fail\n");
-        set_timer = true;
         goto FREE_PKT;
     }
 
     if (!espconn_mesh_get_node_info(MESH_NODE_PARENT, &dst, &parent)) {
         MESH_DEMO_PRINT("get parent fail\n");
-        set_timer = true;
         goto FREE_PKT;
     }
 
@@ -250,13 +251,11 @@ void ICACHE_FLASH_ATTR mesh_stat_start(void *len)
                             0);      // frag length
     if (!header) {
         MESH_DEMO_PRINT("create packet fail\n");
-        set_timer = true;
         goto FREE_PKT;
     }
 
     if (!espconn_mesh_get_usr_data(header, (uint8_t **)&stat, &pkt_len)) {
         MESH_DEMO_PRINT("get data fail\n");
-        set_timer = true;
         goto FREE_PKT;
     }
 
@@ -268,7 +267,6 @@ void ICACHE_FLASH_ATTR mesh_stat_start(void *len)
 
     if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
         MESH_DEMO_PRINT("bin mesh sent fail, heap:%u\n", system_get_free_heap_size());
-        set_timer = true;
         time = 10000;
         espconn_mesh_connect(&g_ser_conn);
         g_pkt_tx_idx --;
@@ -280,32 +278,15 @@ void ICACHE_FLASH_ATTR mesh_stat_start(void *len)
 
 FREE_PKT:
     header ? MESH_DEMO_FREE(header) : 0;
-    //if (!set_timer)  // wait for sent_cb
-    //    return;
     espconn_mesh_setup_timer(&g_stat_timer, time,
             (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
 }
 
 void ICACHE_FLASH_ATTR mesh_sent_cb(void *arg)
 {
-    uint32_t time = 10000;
-    static uint32_t pps = 0, pre = 0;
-    struct espconn *esp = (struct espconn *)arg;
-    if ((esp && esp->reverse == esp))
-        time = 1;
+    mesh_stat_start(&g_pkt_len);
+    os_timer_disarm(&g_stat_timer);
     //MESH_DEMO_PRINT("%s, time:%u\n", __func__, time);
-
-    if (pre == pps && g_dummy_count ++ > 4) {
-        mesh_stat_start(&g_pkt_len);
-        g_dummy_count = 0;
-    } else {
-        espconn_mesh_setup_timer(&g_stat_timer, time,
-                (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
-    }
-
-    if (time != 1 && pps == g_stat_info.pps)
-        pre == pps;
-    pps = g_stat_info.pps;
 }
 
 void ICACHE_FLASH_ATTR mesh_reconnect_cb(void *arg, int8_t err)
@@ -317,7 +298,7 @@ void ICACHE_FLASH_ATTR mesh_reconnect_cb(void *arg, int8_t err)
     MESH_DEMO_PRINT("%s\n", __func__);
     espconn_mesh_connect(&g_ser_conn);
     espconn_mesh_setup_timer(&g_stat_check_timer, 5000,
-            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, true);
+            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
 }
 
 void ICACHE_FLASH_ATTR mesh_disconnect_cb(void *arg)
@@ -329,7 +310,7 @@ void ICACHE_FLASH_ATTR mesh_disconnect_cb(void *arg)
     MESH_DEMO_PRINT("%s\n", __func__);
     espconn_mesh_connect(&g_ser_conn);
     espconn_mesh_setup_timer(&g_stat_check_timer, 5000,
-            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, true);
+            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
 }
 
 void ICACHE_FLASH_ATTR mesh_stat_start_init(uint16_t pkt_len)
@@ -343,7 +324,7 @@ void ICACHE_FLASH_ATTR mesh_stat_start_init(uint16_t pkt_len)
      * setup timer to trigger test-case
      */
     espconn_mesh_setup_timer(&g_stat_check_timer, 5000,
-            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, true);
+            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
 
     /*
      * Display the statistic result per 60s.

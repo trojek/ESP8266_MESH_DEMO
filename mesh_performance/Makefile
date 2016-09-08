@@ -22,7 +22,7 @@ GEN_IMAGES= eagle.app.v6.out
 GEN_BINS= eagle.app.v6.bin
 SPECIAL_MKTARGETS=$(APP_MKTARGETS)
 SUBDIRS=    \
-	demo
+	scenario
 
 endif # } PDIR
 
@@ -53,7 +53,7 @@ dummy: all
 force_submodule_update:=$(shell git submodule init) $(shell git submodule update)
 
 COMPONENTS_eagle.app.v6 = \
-	demo/libdemo.a
+	scenario/libscenario.a
 
 LINKFLAGS_eagle.app.v6 = \
 	-L../lib        \

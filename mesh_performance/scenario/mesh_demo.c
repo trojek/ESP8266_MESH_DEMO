@@ -318,6 +318,9 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
         return false;
     }
 
+    if (!espconn_mesh_is_root_candidate())
+        return true;
+
     /*
      * please change MESH_ROUTER_SSID and MESH_ROUTER_PASSWD according to your router
      */
