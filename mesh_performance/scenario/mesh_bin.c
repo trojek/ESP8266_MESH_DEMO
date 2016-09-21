@@ -297,8 +297,6 @@ void ICACHE_FLASH_ATTR mesh_reconnect_cb(void *arg, int8_t err)
      */
     MESH_DEMO_PRINT("%s\n", __func__);
     espconn_mesh_connect(&g_ser_conn);
-    espconn_mesh_setup_timer(&g_stat_check_timer, 5000,
-            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
 }
 
 void ICACHE_FLASH_ATTR mesh_disconnect_cb(void *arg)
@@ -309,8 +307,18 @@ void ICACHE_FLASH_ATTR mesh_disconnect_cb(void *arg)
      */
     MESH_DEMO_PRINT("%s\n", __func__);
     espconn_mesh_connect(&g_ser_conn);
-    espconn_mesh_setup_timer(&g_stat_check_timer, 5000,
-            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
+}
+
+void ICACHE_FLASH_ATTR mesh_stat_check_func()
+{
+    static uint32_t pps = 0;
+
+    if (pps == g_stat_info.pps &&
+        espconn_mesh_get_status() >= MESH_LOCAL_AVAIL &&
+        espconn_mesh_get_status() <= MESH_SOFTAP_AVAIL)
+        mesh_stat_start(&g_pkt_len);
+
+    pps = g_stat_info.pps;
 }
 
 void ICACHE_FLASH_ATTR mesh_stat_start_init(uint16_t pkt_len)
@@ -323,8 +331,8 @@ void ICACHE_FLASH_ATTR mesh_stat_start_init(uint16_t pkt_len)
     /*
      * setup timer to trigger test-case
      */
-    espconn_mesh_setup_timer(&g_stat_check_timer, 5000,
-            (os_timer_func_t *)mesh_stat_start, (void *)&g_pkt_len, false);
+    espconn_mesh_setup_timer(&g_stat_check_timer, 3000,
+            (os_timer_func_t *)mesh_stat_check_func, NULL, true);
 
     /*
      * Display the statistic result per 60s.
