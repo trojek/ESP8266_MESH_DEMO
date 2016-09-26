@@ -90,7 +90,7 @@ void ICACHE_FLASH_ATTR esp_recv_entrance(void *arg, char *pdata, uint16_t len)
     }
 
     if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
-        MESH_DEMO_PRINT("mesh is busy\n");
+        MESH_DEMO_PRINT("mesh resp is busy\n");
         MESH_DEMO_FREE(header);
         return;
     }
@@ -234,7 +234,7 @@ void ICACHE_FLASH_ATTR esp_mesh_demo_test()
     }
 
     if (espconn_mesh_sent(&g_ser_conn, (uint8_t *)header, header->len)) {
-        MESH_DEMO_PRINT("mesh is busy\n");
+        MESH_DEMO_PRINT("ucast mesh is busy\n");
         MESH_DEMO_FREE(header);
         /*
          * if fail, we re-connect mesh

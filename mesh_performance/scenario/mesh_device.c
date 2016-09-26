@@ -16,6 +16,23 @@
 static bool g_mesh_device_init = false;
 static struct mesh_device_list_type g_node_list;
 
+void ICACHE_FLASH_ATTR
+mesh_device_disp_mac_list()
+{
+    uint16_t idx = 0;
+
+    if (g_node_list.scale < 1)
+        return;
+
+    MESH_DEMO_PRINT("=====mac list info=====\n");
+    MESH_DEMO_PRINT("root: " MACSTR "\n", MAC2STR(g_node_list.root.mac));
+    if (g_node_list.scale < 2)
+        return;
+    for (idx = 0; idx < g_node_list.scale - 1; idx ++)
+        MESH_DEMO_PRINT("idx:%d, " MACSTR "\n", idx, MAC2STR(g_node_list.list[idx].mac));
+    MESH_DEMO_PRINT("=====mac list end======\n");
+}
+
 bool ICACHE_FLASH_ATTR
 mesh_device_get_mac_list(const struct mesh_device_mac_type **list,
                          uint16_t *count)
@@ -144,7 +161,7 @@ mesh_device_add(struct mesh_device_mac_type *nodes, uint16_t count)
 {
 #define MESH_DEV_STEP (10)
     uint16_t idx = 0;
-    uint16_t rest = g_node_list.size - g_node_list.scale;
+    uint16_t rest = g_node_list.size + 1 - g_node_list.scale;
 
     if (!g_mesh_device_init)
         mesh_device_list_init();
@@ -157,15 +174,8 @@ mesh_device_add(struct mesh_device_mac_type *nodes, uint16_t count)
          * current list is limited
          * we need to re-allocate buffer for mac list
          */
-        uint16_t rest_count = rest + MESH_DEV_STEP;
-        uint8_t *buf = NULL;
-        uint16_t size = 0;
-
-        while(rest_count < count)
-            rest_count += MESH_DEV_STEP;
-        size = rest_count - rest + MESH_DEV_STEP;
-
-        buf = (uint8_t *)MESH_DEV_ZALLOC(size * sizeof(*nodes));
+        uint16_t size = g_node_list.size + rest + MESH_DEV_STEP;
+        uint8_t *buf = (uint8_t *)MESH_DEV_ZALLOC(size * sizeof(*nodes));
         if (!buf) {
             MESH_DEMO_PRINT("mesh add alloc buf fail\n");
             return false;
@@ -184,8 +194,9 @@ mesh_device_add(struct mesh_device_mac_type *nodes, uint16_t count)
 
     while (idx < count) {
         if (!mesh_search_device(nodes + idx)) {  // not in list, add it into list
-            MESH_DEV_MEMCPY(g_node_list.list + g_node_list.scale ++,
+            MESH_DEV_MEMCPY(g_node_list.list + g_node_list.scale - 1,
                     nodes + idx, sizeof(*nodes));
+            g_node_list.scale ++;
         }
         idx ++;
     }

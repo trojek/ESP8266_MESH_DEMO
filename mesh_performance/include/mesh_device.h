@@ -15,6 +15,7 @@ struct mesh_device_list_type {
 };
 
 void mesh_device_list_init();
+void mesh_device_disp_mac_list();
 void mesh_device_set_root(struct mesh_device_mac_type *root);
 bool mesh_search_device(const struct mesh_device_mac_type *node);
 bool mesh_device_add(struct mesh_device_mac_type *nodes, uint16_t count);
