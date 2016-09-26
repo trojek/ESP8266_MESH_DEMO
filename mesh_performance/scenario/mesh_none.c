@@ -55,8 +55,10 @@ mesh_none_proto_parser(const void *mesh_header, uint8_t *pdata, uint16_t len)
         dev_count = option->olen / mac_len;
         dev_mac = option->ovalue;
         mesh_device_add((struct mesh_device_mac_type *)dev_mac, dev_count);
-        mesh_disp_sub_dev_mac(dev_mac, dev_count);
+        //mesh_disp_sub_dev_mac(dev_mac, dev_count);
     }
+
+    mesh_device_disp_mac_list();
 }
 
 void ICACHE_FLASH_ATTR mesh_topo_test()
@@ -81,12 +83,14 @@ void ICACHE_FLASH_ATTR mesh_topo_test()
         if (!espconn_mesh_get_node_info(MESH_NODE_ALL, &sub_dev_mac, &sub_dev_count))
             return;
         // the first one is mac address of router
-        mesh_disp_sub_dev_mac(sub_dev_mac, sub_dev_count);
+        //mesh_disp_sub_dev_mac(sub_dev_mac, sub_dev_count);
         mesh_device_set_root((struct mesh_device_mac_type *)src);
+
         if (sub_dev_count > 1) {
             struct mesh_device_mac_type *list = (struct mesh_device_mac_type *)sub_dev_mac;
             mesh_device_add(list + 1, sub_dev_count - 1);
         }
+        mesh_device_disp_mac_list();
 
         // release memory occupied by mac address.
         espconn_mesh_get_node_info(MESH_NODE_ALL, NULL, NULL); 

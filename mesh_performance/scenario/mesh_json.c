@@ -102,13 +102,13 @@ mesh_json_p2p_test()
      * we select one device random as destination device
      * otherwise, we use root device as destination.
      */
-    idx = dev_count > 1 ? (os_random() % dev_count) : 0;
+    idx = dev_count > 1 ? (os_random() % (dev_count + 1)) : 0;
     if (!idx) {
         if (!mesh_device_get_root((const struct mesh_device_mac_type **)&list))
             return;
         os_memcpy(dst, list, sizeof(dst));
     } else {
-        os_memcpy(dst, list + idx, sizeof(dst));
+        os_memcpy(dst, list + idx - 1, sizeof(dst));
     }
 
     os_memset(buf, 0, sizeof(buf));

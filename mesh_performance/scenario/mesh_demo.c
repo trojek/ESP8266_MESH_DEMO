@@ -98,7 +98,6 @@ void ICACHE_FLASH_ATTR esp_recv_entrance(void *arg, char *pdata, uint16_t len)
 
 void ICACHE_FLASH_ATTR esp_mesh_demo_con_cb(void *arg)
 {
-    static flag = true;
     static os_timer_t tst_timer;
     struct espconn *server = (struct espconn *)arg;
 
@@ -270,7 +269,6 @@ void ICACHE_FLASH_ATTR esp_mesh_demo_test()
 bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
 {
     struct station_config config;
-
     // print version of mesh
     espconn_mesh_print_ver();
 
