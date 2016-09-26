@@ -319,6 +319,10 @@ bool ICACHE_FLASH_ATTR esp_mesh_demo_init()
 static bool ICACHE_FLASH_ATTR router_init()
 {
     struct station_config config;
+
+    if (!espconn_mesh_is_root_candidate())
+        goto INIT_SMARTCONFIG;
+
     MESH_DEMO_MEMSET(&config, 0, sizeof(config));
     espconn_mesh_get_router(&config);
     if (config.ssid[0] == 0xff ||
@@ -348,6 +352,7 @@ static bool ICACHE_FLASH_ATTR router_init()
         return false;
     }
 
+INIT_SMARTCONFIG:
     /*
      * use esp-touch(smart configure) to sent information about router AP to mesh node
      */
@@ -377,6 +382,10 @@ static void ICACHE_FLASH_ATTR wait_esptouch_over(os_timer_t *timer)
      * after enable mesh, you should wait for the mesh_enable_cb to be triggered.
      */
     espconn_mesh_enable(mesh_enable_cb, MESH_ONLINE);
+    /*
+     * if you want to setup SoftAP mesh, please set mesh type "MESH_SOFTAP"
+     * espconn_mesh_enable(mesh_enable_cb, MESH_SOFTAP);
+     */
 }
 
 /******************************************************************************
