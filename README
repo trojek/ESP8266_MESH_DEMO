@@ -5,13 +5,13 @@ Description:
 3. Every node gets mac address of all devices working in mesh per 14 seconds after it joins mesh
    Root device uses espconn_mesh_get_node_info to get mac address list,
    while non-root devices use topology request with bcast to get mac address of all nodes.
-4. When local server receives one packet from node ,it just echoes the packet back to the node.
+4. When local server receives one packet from node, it just echoes the packet back to the node.
 5. When node receives packet from server, it parses packet according to protocol,
    and forwards packet to specified protocol parser.
 6. Mesh_demo provides current lib of mesh with non-os-sdk.
 7. Mesh_demo provides recommendation to setup general protocol parser. (mesh_parser.c)
 8. Mesh_demo provides demo to build mesh packet and response packet according to packet received.
-9. Mesh_demo provides demo to parse topolgoy packet (mesh_none.c).
+9. Mesh_demo provides demo to parse topology packet (mesh_none.c).
 10.Mesh_demo provides management for mac address list (mesh_device.c).
 11.Mesh_demo provides demo using communication of ucast/bcast/mcast/p2p (mesh_json.c).
 ------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ Download image to device:
 esp_init_data_default.bin             0xfc000
 blank.bin                             0xfe000
 boot_v1.4(b1).bin                     0x00000
-upgrade/user1.1024.new1.bin           0x01000
+upgrade/user1.1024.new2.bin           0x01000
 ---------------------------------------------------------------
 NOTE: Before starting to download, please make sure you have selected the right flash size (8 Mbit).
 
