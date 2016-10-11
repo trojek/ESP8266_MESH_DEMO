@@ -212,7 +212,8 @@ void ICACHE_FLASH_ATTR mesh_stat_start(void *len)
 
     status = espconn_mesh_get_status();
 
-    if (status != MESH_ONLINE_AVAIL && status != MESH_LOCAL_AVAIL) {
+    if (status != MESH_ONLINE_AVAIL && status != MESH_LOCAL_AVAIL &&
+        status != MESH_SOFTAP_AVAIL && status != MESH_LEAF_AVAIL) {
         MESH_DEMO_PRINT("not ready for test\n");
         goto FREE_PKT;
     }
@@ -312,10 +313,13 @@ void ICACHE_FLASH_ATTR mesh_disconnect_cb(void *arg)
 void ICACHE_FLASH_ATTR mesh_stat_check_func()
 {
     static uint32_t pps = 0;
+    int8_t status = espconn_mesh_get_status();
 
     if (pps == g_stat_info.pps &&
-        espconn_mesh_get_status() >= MESH_LOCAL_AVAIL &&
-        espconn_mesh_get_status() <= MESH_SOFTAP_AVAIL)
+        (status == MESH_LOCAL_AVAIL ||
+         status == MESH_ONLINE_AVAIL ||
+         status == MESH_SOFTAP_AVAIL ||
+         status == MESH_LEAF_AVAIL))
         mesh_stat_start(&g_pkt_len);
 
     pps = g_stat_info.pps;

@@ -41,6 +41,7 @@ enum mesh_type {
     MESH_LOCAL,
     MESH_ONLINE,
     MESH_SOFTAP,
+    MESH_LEAF_LOWPOWER,
     MESH_NONE = 0xFF
 };
 
@@ -51,7 +52,8 @@ enum mesh_status {
     MESH_LOCAL_AVAIL,
     MESH_ONLINE_AVAIL,
     MESH_SOFTAP_AVAIL,
-    MESH_SOFTAP_SETUP
+    MESH_SOFTAP_SETUP,
+    MESH_LEAF_AVAIL
 };
 
 enum mesh_node_type {
